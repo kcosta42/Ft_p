@@ -1,0 +1,11 @@
+Bonus
+IPv4
+IPv6
+protocol FTP RFC (standard 9 or rfc 959)
+
+mkdir
+rmdir
+login/password
+droit utilisateur(impl chmod)
+prompt
+lcd, lpwd, lls (local function)
