@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/09 16:14:58 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/12 17:11:02 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,16 +43,48 @@ int		create_client(char *addr, int port)
 
 int		main(int ac, char **av)
 {
-	int					port;
-	int					sock;
+	int		port;
+	int		socket;
+	int		r;
+	char	buffer[1024];
+	size_t	data_len;
+	char	*data;
 
 	if (ac != 3)
 		usage(av[0]);
 
 	port = ft_atoi(av[2]);
-	sock = create_client(av[1], port);
-	write(sock, "bonjour", 8);
-	while(42);
-	close(sock);
+	socket = create_client(av[1], port);
+
+	while ((r = read(STDIN_FILENO, buffer, 1024)) > 0)
+	{
+		// Send Command
+		buffer[r - 1] = 0;
+		if(!*buffer)
+			continue ;
+		write(socket, buffer, ft_strlen(buffer));
+
+		// Received Result
+		ft_memset(buffer, 0, 1024);
+
+		if (recv(socket, &data_len, sizeof(data_len), 0) == -1)
+		{
+			printf("Error while receiving data length.\n");
+			continue ;
+		}
+
+		if (!data_len)
+			continue ;
+		data = ft_strnew(data_len);
+		if ((r = recv(socket, data, data_len, 0)) == -1)
+		{
+			printf("Error while receiving data.\n");
+			continue ;
+		}
+		write(1, data, data_len);
+		printf("\n[received %d bytes]\n", r);
+		ft_strdel(&data);
+	}
+	close(socket);
 	return (0);
 }

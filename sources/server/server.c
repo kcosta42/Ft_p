@@ -6,32 +6,19 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/09 16:09:03 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/14 18:41:52 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.h"
 
-pid_t	g_process;
-
-char	**ft_tabstr(char **tab, char *entry)
-{
-	while (*tab)
-	{
-		if (!ft_strncmp(*tab, entry, ft_strlen(entry)))
-			return (tab);
-		tab++;
-	}
-	return (NULL);
-}
-
-void	usage(char *exec)
+static void	usage(char *exec)
 {
 	printf("Usage: %s <port>\n", exec);
 	exit(-1);
 }
 
-int		create_server(int port)
+static int	create_server(int port)
 {
 	int					sock;
 	struct protoent		*proto;
@@ -59,35 +46,25 @@ int		create_server(int port)
 	return (sock);
 }
 
-int		init_server(char **envp)
+int		send_data(int client, const void *data, size_t len)
 {
-	char	*home;
-	char	*path;
-	DIR 	*dir;
+	int		ret;
 
-	home = ft_strdup(*ft_tabstr(envp, "HOME=") + 5);
-	path = ft_strjoin(home, "/.server");
+	ret = send(client, &len, sizeof(len), 0);
+	if (ret == -1)
+		printf("Failed to deliver data length\n");
 
-	if (! (dir = opendir(path)))
-	{
-		printf("Creating server directory...\n");
-		if (mkdir(path, 0644))
-		{
-			printf("Error initializing server. Exiting...\n");
-			closedir(dir);
-			ft_strdel(&home);
-			ft_strdel(&path);
-			exit (-1);
-		}
-	}
+	printf("datalength %zu\n", len);
+	if (!len)
+		return (0);
 
-	closedir(dir);
-	ft_strdel(&home);
-	ft_strdel(&path);
-	return (0);
+	ret = send(client, data, len, 0);
+	if (ret == -1)
+		printf("Failed to deliver data\n");
+	return (ret);
 }
 
-int manage_client(int client)
+int		manage_client(int client)
 {
 	int		r;
 	char	buffer[1024];
@@ -96,29 +73,29 @@ int manage_client(int client)
 	{
 		buffer[r] = 0;
 		printf("received %d bytes: [%s]\n", r, buffer);
-		return(0);
+		return(command_handler(client, buffer));
 	}
-	return(-1);
+	return(221);
 }
 
-int accept_client(int sock)
+static int accept_client(int sock)
 {
 	int					cs;
 	struct sockaddr_in	csin;
 	socklen_t			cslen;
+	pid_t				pid;
 
 	cs = accept(sock, (struct sockaddr *)&csin, &cslen);
-	g_process = fork();
-	if (!g_process)
+	pid = fork();
+	if (!pid)
 	{
-		while (manage_client(cs) >= 0)
+		while (manage_client(cs) != 221)
 			;
 		close(cs);
-	}
-	if (g_process > 0)
-		wait4(-1, NULL, WNOHANG, NULL);
-	if (!g_process)
 		exit(1);
+	}
+	if (pid > 0)
+		wait4(-1, NULL, WNOHANG, NULL);
 	return (0);
 }
 
@@ -134,10 +111,7 @@ int		main(int ac, char **av, char **e)
 	sock = create_server(port);
 	init_server(e);
 	while (42)
-	{
-		g_process = 0;
 		accept_client(sock);
-	}
 	close(sock);
 	return (0);
 }

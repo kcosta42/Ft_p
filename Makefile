@@ -6,7 +6,7 @@
 #    By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/08/16 19:08:49 by kcosta            #+#    #+#              #
-#    Updated: 2018/10/09 13:52:00 by kcosta           ###   ########.fr        #
+#    Updated: 2018/10/12 18:30:45 by kcosta           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,11 +17,15 @@ CLIENT	:= client
 
 # ========== Standard ========== #
 CC		:= gcc
-FLAGS	:= -g -Wall -Wextra -Werror #-g -fsanitize=address
+FLAGS	:= -Wall -Wextra -Werror -g #-fsanitize=address
 # ============================== #
 
 # =========== Files ============ #
-SERVER_SRCS_FILES	:=	server.c
+SERVER_SRCS_FILES	:=	server.c		\
+						server_pi.c		\
+						server_init.c	\
+						command_cd.c	\
+						utils.c
 CLIENT_SRCS_FILES	:=	client.c
 
 SERVER_HEADERS_FILES	:=	server.h
