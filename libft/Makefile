@@ -1,14 +1,14 @@
-#* ************************************************************************** *#
-#*                                                                            *#
-#*                                                        :::      ::::::::   *#
-#*   Makefile                                           :+:      :+:    :+:   *#
-#*                                                    +:+ +:+         +:+     *#
-#*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        *#
-#*                                                +#+#+#+#+#+   +#+           *#
-#*   Created: 2016/11/02 10:00:00 by kcosta            #+#    #+#             *#
-#*   Updated: 2017/02/09 14:01:04 by kcosta           ###   ########.fr       *#
-#*                                                                            *#
-#* ************************************************************************** *#
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2016/11/02 10:00:00 by kcosta            #+#    #+#              #
+#    Updated: 2018/10/15 12:49:38 by kcosta           ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
 # =========== Colors =========== #
 CLEAR			:= "\033[2K"
@@ -119,7 +119,12 @@ SRCS_FILES		:=	string/ft_strcat.c			\
 					list/ft_lstdel.c			\
 					list/ft_lstiter.c			\
 					list/ft_lstmap.c			\
-					list/ft_lstnew.c
+					list/ft_lstnew.c			\
+					tab/ft_tabdel.c				\
+					tab/ft_tabdup.c				\
+					tab/ft_tablen.c				\
+					tab/ft_tabreplace.c			\
+					tab/ft_tabstr.c
 
 HEADERS_FILES	:=	libft.h		\
 					ft_string.h	\
@@ -127,7 +132,8 @@ HEADERS_FILES	:=	libft.h		\
 					ft_memory.h	\
 					ft_utils.h	\
 					ft_print.h	\
-					ft_list.h
+					ft_list.h	\
+					ft_tab.h
 # ============================== #
 
 # ========== Sources =========== #
@@ -137,7 +143,7 @@ SRCS			:= $(addprefix $(SRCS_PATH), $(SRCS_FILES))
 
 # ========== Objects =========== #
 OBJS_PATH		:= objs/
-OBJS_DIRS		:= $(addprefix $(OBJS_PATH), string/ ctype/ memory/ utils/ print/ list/)
+OBJS_DIRS		:= $(addprefix $(OBJS_PATH), string/ ctype/ memory/ utils/ print/ list/ tab/)
 OBJS			:= $(addprefix $(OBJS_PATH), $(SRCS_FILES:.c=.o))
 # ============================== #
 

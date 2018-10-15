@@ -6,51 +6,11 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/11 16:26:27 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/12 20:28:34 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/15 12:41:06 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.h"
-
-char	**ft_tabstr(char **tab, char *entry)
-{
-	while (*tab)
-	{
-		if (!ft_strncmp(*tab, entry, ft_strlen(entry)))
-			return (tab);
-		tab++;
-	}
-	return (NULL);
-}
-
-void	ft_tabdel(char ***tab)
-{
-	int		i;
-
-	i = 0;
-	while ((*tab)[i])
-	{
-		ft_strdel(&((*tab)[i]));
-		i++;
-	}
-	ft_strdel((char**)tab);
-}
-
-size_t	ft_tablen(char **tab)
-{
-	size_t	size;
-	size_t	index;
-
-	size = 0;
-	index = 0;
-	while (tab[index])
-	{
-		if (*tab[index])
-			size++;
-		index++;
-	}
-	return (size);
-}
 
 size_t	read_file(const int fd, char **line)
 {

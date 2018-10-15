@@ -3,6 +3,7 @@
 	"editor.insertSpaces": false,
 	"files.associations": {
 		"*.tpp": "cpp",
-		"client.h": "c"
+		"client.h": "c",
+		"ft_string.h": "c"
 	}
 }

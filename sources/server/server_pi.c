@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/11 19:54:47 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/12 18:58:22 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/15 12:00:33 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 char	*g_out;
 
-int		command_pwd(int client, char **argv)
+int		exec_command(int client, char *cmd, char **argv)
 {
 	pid_t		pid;
 	int			fd;
@@ -22,14 +22,14 @@ int		command_pwd(int client, char **argv)
 	size_t		data_length;
 
 	ft_strdel(argv);
-	argv[0] = ft_strdup("/bin/pwd");
+	argv[0] = ft_strdup(cmd);
 	pid = fork();
 	fd = open(g_out, O_RDWR | O_CREAT | O_TRUNC, 0644);
 	if (!pid)
 	{
 		dup2(fd, STDOUT_FILENO);
 		dup2(fd, STDERR_FILENO);
-		execv("/bin/pwd", (char *const*)argv);
+		execv(cmd, (char *const*)argv);
 		exit(1);
 	}
 	if (pid > 0)
@@ -43,7 +43,7 @@ int		command_pwd(int client, char **argv)
 	return (200);
 }
 
-int		command_ls(int client, char **argv)
+int		command_pwd(int client, char *cmd, char **argv)
 {
 	pid_t		pid;
 	int			fd;
@@ -51,14 +51,14 @@ int		command_ls(int client, char **argv)
 	size_t		data_length;
 
 	ft_strdel(argv);
-	argv[0] = ft_strdup("/bin/ls");
+	argv[0] = ft_strdup(cmd);
 	pid = fork();
 	fd = open(g_out, O_RDWR | O_CREAT | O_TRUNC, 0644);
 	if (!pid)
 	{
 		dup2(fd, STDOUT_FILENO);
 		dup2(fd, STDERR_FILENO);
-		execv("/bin/ls", (char *const*)argv);
+		execv(cmd, (char *const*)argv);
 		exit(1);
 	}
 	if (pid > 0)
@@ -67,15 +67,60 @@ int		command_ls(int client, char **argv)
 	data_length = read_file(fd, &data);
 	close(fd);
 
-	send_data(client, data, (data_length == (size_t)-1) ? 0 : data_length);
+	if (data_length == (size_t)-1)
+		send_data(client, data, 0);
+	else
+	{
+		char	*tmp;
+		tmp = ft_strdup(data + ft_strlen(g_root));
+		ft_strdel(&data);
+		data = ft_strdup(*tmp ? tmp : "/");
+		send_data(client, data, ft_strlen(data));
+		ft_strdel(&tmp);
+	}
 	ft_strdel(&data);
 	return (200);
 }
 
-int		command_quit(int client)
+int		command_quit(int client, char *cmd, char **argv)
 {
-	send_data(client, "221 SUCCESS", sizeof("221 SUCCESS"));
+	(void)cmd;
+	(void)argv;
+	send_data(client, "QUIT: 221 SUCCESS", sizeof("QUIT: 221 SUCCESS"));
 	return (221);
+}
+
+t_cmd_hash cmd_hash[9] =
+{
+	{ 2, "ls",		"/bin/ls",		&exec_command },
+	{ 2, "cp",		"/bin/cp",		&exec_command },
+	{ 2, "mv",		"/bin/mv",		&exec_command },
+	{ 2, "cd",		NULL,			&command_cd   },
+	{ 3, "pwd",		"/bin/pwd",		&command_pwd  },
+	{ 5, "mkdir",	"/bin/mkdir",	&exec_command },
+	{ 5, "rmdir",	"/bin/rmdir",	&exec_command },
+	{ 6, "quit",	NULL,			&command_quit },
+	{ 0, NULL, NULL, NULL }
+};
+
+void	replace_path(char ***argv)
+{
+	char	*tmp;
+	int		i;
+
+	i = 0;
+	while ((*argv)[i])
+	{
+		if ((*argv)[i][0] == '/')
+		{
+			tmp = ft_strjoin(g_root, (*argv)[i] + 1);
+
+			ft_strdel(&((*argv)[i]));
+			(*argv)[i] = ft_strdup(tmp);
+			ft_strdel(&tmp);
+		}
+		i++;
+	}
 }
 
 int		command_handler(int client, char *cmd)
@@ -83,27 +128,24 @@ int		command_handler(int client, char *cmd)
 	int		len;
 	int		ret;
 	char	**argv;
+	int		i;
 
 	argv = ft_strsplit(ft_strtrim(cmd), ' ');
 	len = ft_strlen(argv[0]);
-	if (len == 2 && !ft_strcmp("ls", argv[0]))
-		ret = command_ls(client, argv);
-	else if (len == 3 && !ft_strcmp("pwd", argv[0]))
-		ret = command_pwd(client, argv);
-	else if (len == 2 && !ft_strcmp("cd", argv[0]))
-		ret = command_cd(client, argv);
-	// else if (len == 4 && !ft_strcmp("mkdir", argv[0]))
-	// 	ret = command_mkdir(client);
-	// else if (len == 4 && !ft_strcmp("rmdir", argv[0]))
-	// 	ret = command_rmdir(client);
-	// else if (len == 4 && !ft_strcmp("rm", argv[0]))
-	// 	ret = command_rm(client);
-	else if (len == 4 && !ft_strcmp("quit", argv[0]))
-		ret = command_quit(client);
-	else
+	i = 0;
+	while (cmd_hash[i].cmd_len)
 	{
-		printf("COMMAND NOT FOUND\n");
-		send_data(client, "500 ERROR", sizeof("500 ERROR"));
+		if (cmd_hash[i].cmd_len == len && !ft_strcmp(cmd_hash[i].cmd, argv[0]))
+		{
+			replace_path(&argv);
+			ret = cmd_hash[i].exec(client, cmd_hash[i].bin, argv);
+			break;
+		}
+		i++;
+	}
+	if (!cmd_hash[i].cmd_len)
+	{
+		send_data(client, "COMMAND NOT FOUND: 500 ERROR", ft_strlen("COMMAND NOT FOUND: 500 ERROR"));
 		ret = 500;
 	}
 	ft_tabdel(&argv);

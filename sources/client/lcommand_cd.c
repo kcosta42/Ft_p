@@ -1,27 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   command_cd.c                                       :+:      :+:    :+:   */
+/*   lcommand_cd.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/10/12 17:29:26 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/15 12:57:05 by kcosta           ###   ########.fr       */
+/*   Created: 2018/10/15 12:31:37 by kcosta            #+#    #+#             */
+/*   Updated: 2018/10/15 13:11:55 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.h"
+#include "client.h"
 
-char	*g_root;
-char	*g_home;
-
-int			isvalid_path(int client, char *path, char *arg)
+int			isvalid_path(char *path, char *arg)
 {
 	struct stat	st_stat;
 	char		*tmp;
 	char		*absolute_path;
 	int			ret;
-	char		*msg;
 
 	ret = 0;
 	if (!ft_strcmp(arg, "-"))
@@ -34,29 +30,27 @@ int			isvalid_path(int client, char *path, char *arg)
 	}
 	else
 		absolute_path = ft_strdup(arg);
-	if (stat(absolute_path, &st_stat) == -1) // Change to fstat()
-	{
-		ret = 1;
-		msg = ft_strjoin("cd: No such file or directory: ", arg);
-		send_data(client, msg, ft_strlen(msg));
-		ft_strdel(&msg);
-	}
+	if (stat(absolute_path, &st_stat) == -1)
+		ret = printf("cd: No such file or directory: %s\n", arg);
 	else if (!S_ISDIR(st_stat.st_mode))
-	{
-		ret = 2;
-		msg = ft_strjoin("cd: Not a directory: ", arg);
-		send_data(client, msg, ft_strlen(msg));
-		ft_strdel(&msg);
-	}
-	else if (access(absolute_path, X_OK) == -1) // Find alternative
-	{
-		ret = 3;
-		msg = ft_strjoin("cd: Permission denied: ", arg);
-		send_data(client, msg, ft_strlen(msg));
-		ft_strdel(&msg);
-	}
+		ret = printf("cd: Not a directory: %s\n", arg);
+	else if (access(absolute_path, X_OK) == -1)
+		ret = printf("cd: Permission denied: %s\n", arg);
 	ft_strdel(&absolute_path);
 	return (ret);
+}
+
+static int		lcd_home(char *home, char **pwd, char **old_pwd)
+{
+	if (chdir(home) == -1)
+		return (printf("cd: HOME not found.\n"));
+
+	ft_strdel(old_pwd);
+	*old_pwd = ft_strdup(*pwd);
+	ft_strdel(pwd);
+	*pwd = ft_strdup(home);
+
+	return (0);
 }
 
 char		**path_split(char *absolute_path)
@@ -76,13 +70,11 @@ char		**path_split(char *absolute_path)
 	return (path);
 }
 
-static int		cd_back(char **pwd)
+static int		lcd_back(char **pwd)
 {
 	char		*path;
 	size_t		size;
 
-	if (ft_strlen(*pwd) == ft_strlen(g_root) && !ft_strcmp(*pwd, g_root))
-		return (0);
 	size = (ft_strrchr(*pwd, '/') - *pwd) ? ft_strrchr(*pwd, '/') - *pwd : 1;
 	path = ft_strnew(size);
 	path = ft_strncpy(path, *pwd, size);
@@ -106,7 +98,7 @@ char		*get_path(char **path)
 	return (absolute_path);
 }
 
-static int		cd_forward(char *arg, char **pwd)
+static int		lcd_forward(char *arg, char **pwd)
 {
 	char		*path;
 	char		*tmp;
@@ -130,7 +122,7 @@ static int		cd_forward(char *arg, char **pwd)
 	return (0);
 }
 
-static int		cd_manage(char **path, char **pwd, char **old)
+static int		lcd_manage(char **path, char **pwd, char **old)
 {
 	size_t		index;
 
@@ -140,63 +132,47 @@ static int		cd_manage(char **path, char **pwd, char **old)
 		ft_printf("%s\n", *old);
 		chdir(*old);
 		ft_strswp(pwd, old);
-		return (200);
+		return (0);
 	}
 	ft_strdel(old);
 	*old = ft_strdup(*pwd);
 	while (index < ft_tablen(path))
 	{
-		if (ft_strlen(path[index]) == 2 && !ft_strcmp(path[index], ".."))
-			cd_back(pwd);
-		else if (ft_strlen(path[index]) == 1 && !ft_strcmp(path[index], "."))
+		if (!ft_strcmp(path[index], ".."))
+			lcd_back(pwd);
+		else if (!ft_strcmp(path[index], "."))
 			;
 		else
-			cd_forward(path[index], pwd);
+			lcd_forward(path[index], pwd);
 		index++;
 	}
-	return (200);
+	return (0);
 }
 
-static int		cd_home(int client, char *home, char **pwd, char **old_pwd)
+int		lcommand_cd(char **env, char *cmd, char **argv)
 {
-	if (chdir(home) == -1)
-	{
-		send_data(client, "cd: HOME not found.", ft_strlen("cd: HOME not found."));
-		return (501);
-	}
-	ft_strdel(old_pwd);
-	*old_pwd = ft_strdup(*pwd);
-	ft_strdel(pwd);
-	*pwd = ft_strdup(home);
-	send_data(client, NULL, 0);
-	return(200);
-}
-
-int		command_cd(int client, char *cmd, char **argv)
-{
+	static char	*home = NULL;
 	static char	*pwd = NULL;
 	static char	*old_pwd = NULL;
 	char		**path;
-	char		*msg;
 
 	(void)cmd;
-	pwd 	= (!pwd) 	 ? ft_strdup(g_home) : pwd;
-	old_pwd = (!old_pwd) ? ft_strdup(g_home) : old_pwd;
-	if (ft_tablen(argv) > 2)
-	{
-		msg = ft_strjoin("cd: String not in pwd: ", argv[1]);
-		send_data(client, msg, ft_strlen(msg));
-		ft_strdel(&msg);
-		return (501);
-	}
-	if (!argv[1] || (ft_strlen(argv[1]) == 1 && !ft_strcmp(argv[1], "~")))
-		return (cd_home(client, g_home, &pwd, &old_pwd));
-	if (isvalid_path(client, pwd, argv[1]))
-		return (501);
-	path = path_split(argv[1]);
-	cd_manage(path, &pwd, &old_pwd);
+	pwd 	= (!pwd) 	 ? ft_strdup(*ft_tabstr(env, "PWD=") + 4) : pwd;
+	old_pwd = (!old_pwd) ? ft_strdup(*ft_tabstr(env, "HOME=") + 5) : old_pwd;
+	home 	= (!home) 	 ? ft_strdup(*ft_tabstr(env, "HOME=") + 5) : old_pwd;
 
-	send_data(client, NULL, 0);
+	if (ft_tablen(argv) > 2)
+		return (printf("cd: String not in pwd.\n"));
+
+	if (!argv[1] || !ft_strcmp(argv[1], "~"))
+		return (lcd_home(home, &pwd, &old_pwd));
+
+	if (isvalid_path(pwd, argv[1]))
+		return (1);
+
+	path = path_split(argv[1]);
+	lcd_manage(path, &pwd, &old_pwd);
+
 	ft_tabdel(&path);
 	return (200);
 }

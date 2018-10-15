@@ -1,24 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   libft.h                                            :+:      :+:    :+:   */
+/*   ft_tab.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/12/01 15:08:45 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/15 12:40:39 by kcosta           ###   ########.fr       */
+/*   Created: 2018/10/15 12:34:11 by kcosta            #+#    #+#             */
+/*   Updated: 2018/10/15 12:38:40 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_H
-# define LIBFT_H
+#ifndef FT_TAB_H
+# define FT_TAB_H
 
-# include "ft_string.h"
-# include "ft_ctype.h"
-# include "ft_memory.h"
-# include "ft_utils.h"
-# include "ft_print.h"
-# include "ft_list.h"
-# include "ft_tab.h"
+# include <string.h>
+
+void	ft_tabdel(char ***tab);
+size_t	ft_tablen(char **tab);
+char	**ft_tabdup(char **tab, char *entry);
+char	**ft_tabstr(char **tab, char *entry);
+int		ft_tabreplace(char ***tab, char *to_find, char *entry);
 
 #endif

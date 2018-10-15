@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/12 17:11:02 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/15 13:09:19 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int		create_client(char *addr, int port)
 	return (sock);
 }
 
-int		main(int ac, char **av)
+int		main(int ac, char **av, char **env)
 {
 	int		port;
 	int		socket;
@@ -62,6 +62,10 @@ int		main(int ac, char **av)
 		buffer[r - 1] = 0;
 		if(!*buffer)
 			continue ;
+
+		if (lcommand_handler(env, buffer))
+			continue ;
+
 		write(socket, buffer, ft_strlen(buffer));
 
 		// Received Result

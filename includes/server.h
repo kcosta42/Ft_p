@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:47:25 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/12 20:28:42 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/15 12:41:16 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,13 @@
 
 # include <dirent.h>
 
-char	**ft_tabstr(char **tab, char *entry);
-void	ft_tabdel(char ***tab);
-size_t	ft_tablen(char **tab);
+typedef struct	s_cmd_hash
+{
+	uint8_t	cmd_len;
+	char	*cmd;
+	char	*bin;
+	int		(*exec)(int, char *, char **);
+}				t_cmd_hash;
 
 size_t	read_file(const int fd, char **line);
 
@@ -41,7 +45,7 @@ int		init_server(char **envp);
 int		send_data(int client, const void *data, size_t len);
 
 int		command_handler(int client, char *cmd);
-int		command_cd(int client, char **argv);
+int		command_cd(int client, char *cmd, char **argv);
 
 extern char	*g_root;
 extern char	*g_home;

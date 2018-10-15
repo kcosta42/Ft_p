@@ -1,24 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   libft.h                                            :+:      :+:    :+:   */
+/*   ft_tablen.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/12/01 15:08:45 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/15 12:40:39 by kcosta           ###   ########.fr       */
+/*   Created: 2018/10/15 12:36:46 by kcosta            #+#    #+#             */
+/*   Updated: 2018/10/15 12:38:37 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_H
-# define LIBFT_H
+#include "ft_tab.h"
 
-# include "ft_string.h"
-# include "ft_ctype.h"
-# include "ft_memory.h"
-# include "ft_utils.h"
-# include "ft_print.h"
-# include "ft_list.h"
-# include "ft_tab.h"
+size_t	ft_tablen(char **tab)
+{
+	size_t	size;
+	size_t	index;
 
-#endif
+	size = 0;
+	index = 0;
+	while (tab[index])
+	{
+		if (*tab[index])
+			size++;
+		index++;
+	}
+	return (size);
+}

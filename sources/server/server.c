@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/14 18:41:52 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/15 10:01:19 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,15 +52,14 @@ int		send_data(int client, const void *data, size_t len)
 
 	ret = send(client, &len, sizeof(len), 0);
 	if (ret == -1)
-		printf("Failed to deliver data length\n");
+		printf("Failed to deliver data length.\n");
 
-	printf("datalength %zu\n", len);
 	if (!len)
 		return (0);
 
 	ret = send(client, data, len, 0);
 	if (ret == -1)
-		printf("Failed to deliver data\n");
+		printf("Failed to deliver data.\n");
 	return (ret);
 }
 
