@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/15 12:31:37 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/15 13:11:55 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/16 19:20:42 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ int			isvalid_path(char *path, char *arg)
 	char		*tmp;
 	char		*absolute_path;
 	int			ret;
+	int			fd;
 
 	ret = 0;
 	if (!ft_strcmp(arg, "-"))
@@ -30,12 +31,15 @@ int			isvalid_path(char *path, char *arg)
 	}
 	else
 		absolute_path = ft_strdup(arg);
-	if (stat(absolute_path, &st_stat) == -1)
+	fd = open(absolute_path, O_RDONLY);
+	if (fd == -1 && errno == EACCES)
+		ret = printf("cd: Permission denied: %s\n", arg);
+	else if (fd == -1)
 		ret = printf("cd: No such file or directory: %s\n", arg);
+	else if (fstat(fd, &st_stat) == -1)
+		ret = printf("cd: Permission denied: %s\n", arg);
 	else if (!S_ISDIR(st_stat.st_mode))
 		ret = printf("cd: Not a directory: %s\n", arg);
-	else if (access(absolute_path, X_OK) == -1)
-		ret = printf("cd: Permission denied: %s\n", arg);
 	ft_strdel(&absolute_path);
 	return (ret);
 }

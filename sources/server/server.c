@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/15 10:01:19 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/18 20:53:03 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,18 +46,18 @@ static int	create_server(int port)
 	return (sock);
 }
 
-int		send_data(int client, const void *data, size_t len)
+int		send_data(int client, const void *data, size_t size)
 {
 	int		ret;
 
-	ret = send(client, &len, sizeof(len), 0);
+	ret = send(client, &size, sizeof(size), 0);
 	if (ret == -1)
-		printf("Failed to deliver data length.\n");
+		printf("Failed to deliver data size.\n");
 
-	if (!len)
+	if (!size)
 		return (0);
 
-	ret = send(client, data, len, 0);
+	ret = send(client, data, size, 0);
 	if (ret == -1)
 		printf("Failed to deliver data.\n");
 	return (ret);
@@ -66,13 +66,16 @@ int		send_data(int client, const void *data, size_t len)
 int		manage_client(int client)
 {
 	int		r;
+	int		ret;
 	char	buffer[1024];
 
 	if ((r = read(client, buffer, 1023)) > 0)
 	{
 		buffer[r] = 0;
 		printf("received %d bytes: [%s]\n", r, buffer);
-		return(command_handler(client, buffer));
+		ret = command_handler(client, buffer);
+		send(client, &ret, sizeof(int), 0);
+		return (ret);
 	}
 	return(221);
 }

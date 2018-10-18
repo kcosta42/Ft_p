@@ -6,11 +6,13 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/15 11:28:57 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/15 13:10:01 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/18 23:49:57 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "client.h"
+
+char	*last_cmd;
 
 int		exec_command(char **envp, char *cmd, char **argv)
 {
@@ -31,7 +33,7 @@ int		exec_command(char **envp, char *cmd, char **argv)
 	return (200);
 }
 
-t_lcmd_hash cmd_hash[9] =
+t_lcmd_hash cmd_hash[4] =
 {
 	{ 3, "lls",		"/bin/ls",	&exec_command },
 	{ 3, "lcd",		NULL,		&lcommand_cd  },
@@ -39,7 +41,7 @@ t_lcmd_hash cmd_hash[9] =
 	{ 0, NULL, NULL, NULL }
 };
 
-int		lcommand_handler(char **env, char *cmd)
+int		lcommand_handler(int socket, char *cmd, char **env)
 {
 	int		len;
 	int		ret;
@@ -47,6 +49,10 @@ int		lcommand_handler(char **env, char *cmd)
 	int		i;
 
 	argv = ft_strsplit(ft_strtrim(cmd), ' ');
+
+	last_cmd ? ft_strdel(&last_cmd) : 0;
+	last_cmd = ft_strdup(argv[0]);
+
 	len = ft_strlen(argv[0]);
 	i = 0;
 	while (cmd_hash[i].cmd_len)
@@ -58,6 +64,8 @@ int		lcommand_handler(char **env, char *cmd)
 		}
 		i++;
 	}
+	if (len == 3 && !ft_strcmp("put", argv[0]))
+		return (lcommand_put(socket, argv));
 	if (!cmd_hash[i].cmd_len)
 		ret = 0;
 	ft_tabdel(&argv);

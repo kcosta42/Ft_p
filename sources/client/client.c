@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/15 13:09:19 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/18 22:45:05 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,6 @@ int		main(int ac, char **av, char **env)
 	int		socket;
 	int		r;
 	char	buffer[1024];
-	size_t	data_len;
-	char	*data;
 
 	if (ac != 3)
 		usage(av[0]);
@@ -63,31 +61,10 @@ int		main(int ac, char **av, char **env)
 		if(!*buffer)
 			continue ;
 
-		if (lcommand_handler(env, buffer))
-			continue ;
+		if (!lcommand_handler(socket, buffer, env))
+			send_command(socket, buffer);
 
-		write(socket, buffer, ft_strlen(buffer));
-
-		// Received Result
 		ft_memset(buffer, 0, 1024);
-
-		if (recv(socket, &data_len, sizeof(data_len), 0) == -1)
-		{
-			printf("Error while receiving data length.\n");
-			continue ;
-		}
-
-		if (!data_len)
-			continue ;
-		data = ft_strnew(data_len);
-		if ((r = recv(socket, data, data_len, 0)) == -1)
-		{
-			printf("Error while receiving data.\n");
-			continue ;
-		}
-		write(1, data, data_len);
-		printf("\n[received %d bytes]\n", r);
-		ft_strdel(&data);
 	}
 	close(socket);
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/11 19:54:47 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/15 12:00:33 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/18 23:38:46 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ int		exec_command(int client, char *cmd, char **argv)
 	if (pid > 0)
 		wait4(0, NULL, 0, NULL);
 
-	data_length = read_file(fd, &data);
+	data_length = ft_readfile(fd, &data);
 	close(fd);
 
 	send_data(client, data, (data_length == (size_t)-1) ? 0 : data_length);
@@ -64,7 +64,7 @@ int		command_pwd(int client, char *cmd, char **argv)
 	if (pid > 0)
 		wait4(0, NULL, 0, NULL);
 
-	data_length = read_file(fd, &data);
+	data_length = ft_readfile(fd, &data);
 	close(fd);
 
 	if (data_length == (size_t)-1)
@@ -82,6 +82,41 @@ int		command_pwd(int client, char *cmd, char **argv)
 	return (200);
 }
 
+int		command_del(int client, char *cmd, char **argv)
+{
+	pid_t		pid;
+	int			fd;
+	char		*data;
+	size_t		data_length;
+
+	if (ft_tablen(argv) > 2 || *argv[1] == '-')
+	{
+		send_data(client, "Usage: del <file>", ft_strlen("Usage: del <file>"));
+		return (501);
+	}
+
+	ft_strdel(argv);
+	argv[0] = ft_strdup(cmd);
+	pid = fork();
+	fd = open(g_out, O_RDWR | O_CREAT | O_TRUNC, 0644);
+	if (!pid)
+	{
+		dup2(fd, STDOUT_FILENO);
+		dup2(fd, STDERR_FILENO);
+		execv(cmd, (char *const*)argv);
+		exit(1);
+	}
+	if (pid > 0)
+		wait4(0, NULL, 0, NULL);
+
+	data_length = ft_readfile(fd, &data);
+	close(fd);
+
+	send_data(client, data, (data_length == (size_t)-1) ? 0 : data_length);
+	ft_strdel(&data);
+	return (200);
+}
+
 int		command_quit(int client, char *cmd, char **argv)
 {
 	(void)cmd;
@@ -90,12 +125,15 @@ int		command_quit(int client, char *cmd, char **argv)
 	return (221);
 }
 
-t_cmd_hash cmd_hash[9] =
+t_cmd_hash cmd_hash[12] =
 {
 	{ 2, "ls",		"/bin/ls",		&exec_command },
 	{ 2, "cp",		"/bin/cp",		&exec_command },
 	{ 2, "mv",		"/bin/mv",		&exec_command },
 	{ 2, "cd",		NULL,			&command_cd   },
+	{ 3, "get",		NULL,			&command_get  },
+	{ 3, "put",		NULL,			&command_put  },
+	{ 3, "del",		"/bin/rm",		&command_del  },
 	{ 3, "pwd",		"/bin/pwd",		&command_pwd  },
 	{ 5, "mkdir",	"/bin/mkdir",	&exec_command },
 	{ 5, "rmdir",	"/bin/rmdir",	&exec_command },

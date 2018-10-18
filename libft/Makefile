@@ -6,7 +6,7 @@
 #    By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/11/02 10:00:00 by kcosta            #+#    #+#              #
-#    Updated: 2018/10/15 12:49:38 by kcosta           ###   ########.fr        #
+#    Updated: 2018/10/18 23:38:25 by kcosta           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -92,6 +92,7 @@ SRCS_FILES		:=	string/ft_strcat.c			\
 					utils/ft_itoa.c				\
 					utils/ft_getline.c			\
 					utils/ft_getopt.c			\
+					utils/ft_readfile.c			\
 					print/ft_printf_address.c	\
 					print/ft_printf_check.c		\
 					print/ft_printf.c			\

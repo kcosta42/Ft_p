@@ -1,18 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   ft_readfile.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/10/11 16:26:27 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/15 12:41:06 by kcosta           ###   ########.fr       */
+/*   Created: 2018/10/18 22:48:18 by kcosta            #+#    #+#             */
+/*   Updated: 2018/10/18 22:49:40 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.h"
+#include "ft_utils.h"
+#include "ft_string.h"
 
-size_t	read_file(const int fd, char **line)
+size_t	ft_readfile(const int fd, char **buf)
 {
 	char	buff[1024];
 	char	*dup;
@@ -30,9 +31,9 @@ size_t	read_file(const int fd, char **line)
 		dup = ft_strjoin(dup, buff);
 		ft_strdel(&tmp);
 	}
-	*line = ft_strdup(dup);
+	*buf = ft_strdup(dup);
 	ft_strdel(&dup);
 
-	(*line)[len - 1] = 0;
+	(*buf)[len - 1] = 0;
 	return (len - 1);
 }

@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/12 17:29:26 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/15 12:57:05 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/16 14:03:18 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ int			isvalid_path(int client, char *path, char *arg)
 	char		*absolute_path;
 	int			ret;
 	char		*msg;
+	int			fd;
 
 	ret = 0;
 	if (!ft_strcmp(arg, "-"))
@@ -34,24 +35,32 @@ int			isvalid_path(int client, char *path, char *arg)
 	}
 	else
 		absolute_path = ft_strdup(arg);
-	if (stat(absolute_path, &st_stat) == -1) // Change to fstat()
+	fd = open(absolute_path, O_RDONLY);
+	if (fd == -1 && errno == EACCES)
 	{
 		ret = 1;
+		msg = ft_strjoin("cd: Permission denied: ", arg);
+		send_data(client, msg, ft_strlen(msg));
+		ft_strdel(&msg);
+	}
+	else if (fd == -1)
+	{
+		ret = 2;
 		msg = ft_strjoin("cd: No such file or directory: ", arg);
+		send_data(client, msg, ft_strlen(msg));
+		ft_strdel(&msg);
+	}
+	else if (fstat(fd, &st_stat) == -1)
+	{
+		ret = 1;
+		msg = ft_strjoin("cd: Permission denied: ", arg);
 		send_data(client, msg, ft_strlen(msg));
 		ft_strdel(&msg);
 	}
 	else if (!S_ISDIR(st_stat.st_mode))
 	{
-		ret = 2;
-		msg = ft_strjoin("cd: Not a directory: ", arg);
-		send_data(client, msg, ft_strlen(msg));
-		ft_strdel(&msg);
-	}
-	else if (access(absolute_path, X_OK) == -1) // Find alternative
-	{
 		ret = 3;
-		msg = ft_strjoin("cd: Permission denied: ", arg);
+		msg = ft_strjoin("cd: Not a directory: ", arg);
 		send_data(client, msg, ft_strlen(msg));
 		ft_strdel(&msg);
 	}
