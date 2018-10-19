@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:47:25 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/19 00:32:21 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/19 14:55:35 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ typedef struct	s_cmd_hash
 
 int		init_server(char **envp);
 
-int		send_data(int client, const void *data, size_t size);
+int		send_data(int client, const void *data, size_t size, int reply);
 
 int		command_handler(int client, char *cmd);
 int		command_cd(int client, char *cmd, char **argv);
@@ -54,4 +54,6 @@ int		command_put(int client, char *cmd, char **argv);
 extern char	*g_root;
 extern char	*g_home;
 extern char	*g_out;
+extern char	*g_pwd;
+
 #endif

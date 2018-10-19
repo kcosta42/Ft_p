@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/11 19:54:47 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/18 23:38:46 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/19 16:48:29 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int		exec_command(int client, char *cmd, char **argv)
 	data_length = ft_readfile(fd, &data);
 	close(fd);
 
-	send_data(client, data, (data_length == (size_t)-1) ? 0 : data_length);
+	send_data(client, data, (data_length == (size_t)-1) ? 0 : data_length, 200);
 	ft_strdel(&data);
 	return (200);
 }
@@ -50,6 +50,8 @@ int		command_pwd(int client, char *cmd, char **argv)
 	char		*data;
 	size_t		data_length;
 
+	if (ft_tablen(argv) != 1)
+		return (send_data(client, "pwd: too many arguments", ft_strlen("pwd: too many arguments"), 501));
 	ft_strdel(argv);
 	argv[0] = ft_strdup(cmd);
 	pid = fork();
@@ -68,14 +70,14 @@ int		command_pwd(int client, char *cmd, char **argv)
 	close(fd);
 
 	if (data_length == (size_t)-1)
-		send_data(client, data, 0);
+		send_data(client, data, 0, 200);
 	else
 	{
 		char	*tmp;
 		tmp = ft_strdup(data + ft_strlen(g_root));
 		ft_strdel(&data);
 		data = ft_strdup(*tmp ? tmp : "/");
-		send_data(client, data, ft_strlen(data));
+		send_data(client, data, ft_strlen(data), 200);
 		ft_strdel(&tmp);
 	}
 	ft_strdel(&data);
@@ -90,10 +92,7 @@ int		command_del(int client, char *cmd, char **argv)
 	size_t		data_length;
 
 	if (ft_tablen(argv) > 2 || *argv[1] == '-')
-	{
-		send_data(client, "Usage: del <file>", ft_strlen("Usage: del <file>"));
-		return (501);
-	}
+		return (send_data(client, "Usage: del <file>", ft_strlen("Usage: del <file>"), 501));
 
 	ft_strdel(argv);
 	argv[0] = ft_strdup(cmd);
@@ -112,7 +111,7 @@ int		command_del(int client, char *cmd, char **argv)
 	data_length = ft_readfile(fd, &data);
 	close(fd);
 
-	send_data(client, data, (data_length == (size_t)-1) ? 0 : data_length);
+	send_data(client, data, (data_length == (size_t)-1) ? 0 : data_length, 200);
 	ft_strdel(&data);
 	return (200);
 }
@@ -121,8 +120,7 @@ int		command_quit(int client, char *cmd, char **argv)
 {
 	(void)cmd;
 	(void)argv;
-	send_data(client, "QUIT: 221 SUCCESS", sizeof("QUIT: 221 SUCCESS"));
-	return (221);
+	return (send_data(client, "Exiting...", ft_strlen("Exiting..."), 221));
 }
 
 t_cmd_hash cmd_hash[12] =
@@ -135,18 +133,45 @@ t_cmd_hash cmd_hash[12] =
 	{ 3, "put",		NULL,			&command_put  },
 	{ 3, "del",		"/bin/rm",		&command_del  },
 	{ 3, "pwd",		"/bin/pwd",		&command_pwd  },
+	{ 4, "quit",	NULL,			&command_quit },
 	{ 5, "mkdir",	"/bin/mkdir",	&exec_command },
 	{ 5, "rmdir",	"/bin/rmdir",	&exec_command },
-	{ 6, "quit",	NULL,			&command_quit },
 	{ 0, NULL, NULL, NULL }
 };
 
-void	replace_path(char ***argv)
+int		check_path(char *path)
+{
+	char	**cwd;
+	char	*tmp;
+	char	buffer[1024];
+	size_t	index;
+
+	tmp = path;
+	getcwd(buffer, 1024);
+	cwd = ft_strsplit(buffer, '/');
+	index = ft_tablen(cwd);
+	while (tmp)
+	{
+		if (ft_strlen(tmp) > 2 && !ft_strncmp(tmp, "..", 2))
+			index--;
+		else
+			index++;
+		tmp = ft_strchr(tmp, '/');
+		tmp = tmp ? tmp + 1 : NULL;
+	}
+
+	ft_tabdel(&cwd);
+	return (index < 5);
+}
+
+int		replace_path(char ***argv)
 {
 	char	*tmp;
 	int		i;
+	int		ret;
 
 	i = 0;
+	ret = 0;
 	while ((*argv)[i])
 	{
 		if ((*argv)[i][0] == '/')
@@ -157,8 +182,11 @@ void	replace_path(char ***argv)
 			(*argv)[i] = ft_strdup(tmp);
 			ft_strdel(&tmp);
 		}
+		if (ft_strstr((*argv)[i], ".."))
+			ret = check_path((*argv)[i]);
 		i++;
 	}
+	return (ret);
 }
 
 int		command_handler(int client, char *cmd)
@@ -167,6 +195,7 @@ int		command_handler(int client, char *cmd)
 	int		ret;
 	char	**argv;
 	int		i;
+	char	*msg;
 
 	argv = ft_strsplit(ft_strtrim(cmd), ' ');
 	len = ft_strlen(argv[0]);
@@ -175,7 +204,14 @@ int		command_handler(int client, char *cmd)
 	{
 		if (cmd_hash[i].cmd_len == len && !ft_strcmp(cmd_hash[i].cmd, argv[0]))
 		{
-			replace_path(&argv);
+			if (replace_path(&argv) && i != 3)
+			{
+				msg = ft_strjoin(cmd_hash[i].cmd, ": No such file or directory.");
+				send_data(client, msg, ft_strlen(msg), 200);
+				ret = 200;
+				ft_strdel(&msg);
+				break;
+			}
 			ret = cmd_hash[i].exec(client, cmd_hash[i].bin, argv);
 			break;
 		}
@@ -183,7 +219,7 @@ int		command_handler(int client, char *cmd)
 	}
 	if (!cmd_hash[i].cmd_len)
 	{
-		send_data(client, "COMMAND NOT FOUND: 500 ERROR", ft_strlen("COMMAND NOT FOUND: 500 ERROR"));
+		send_data(client, "Command not found.", ft_strlen("Command not found."), 500);
 		ret = 500;
 	}
 	ft_tabdel(&argv);

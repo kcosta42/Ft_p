@@ -6,7 +6,7 @@
 #    By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/08/16 19:08:49 by kcosta            #+#    #+#              #
-#    Updated: 2018/10/18 23:36:32 by kcosta           ###   ########.fr        #
+#    Updated: 2018/10/19 12:06:19 by kcosta           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,8 +26,7 @@ SERVER_SRCS_FILES	:=	server.c		\
 						server_init.c	\
 						command_cd.c	\
 						command_get.c	\
-						command_put.c	\
-						utils.c
+						command_put.c
 CLIENT_SRCS_FILES	:=	client.c		\
 						client_pi.c		\
 						client_dtp.c	\

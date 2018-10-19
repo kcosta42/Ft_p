@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/12 17:29:26 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/16 14:03:18 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/19 14:56:26 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,30 +40,31 @@ int			isvalid_path(int client, char *path, char *arg)
 	{
 		ret = 1;
 		msg = ft_strjoin("cd: Permission denied: ", arg);
-		send_data(client, msg, ft_strlen(msg));
+		send_data(client, msg, ft_strlen(msg), 501);
 		ft_strdel(&msg);
 	}
 	else if (fd == -1)
 	{
 		ret = 2;
 		msg = ft_strjoin("cd: No such file or directory: ", arg);
-		send_data(client, msg, ft_strlen(msg));
+		send_data(client, msg, ft_strlen(msg), 501);
 		ft_strdel(&msg);
 	}
 	else if (fstat(fd, &st_stat) == -1)
 	{
 		ret = 1;
 		msg = ft_strjoin("cd: Permission denied: ", arg);
-		send_data(client, msg, ft_strlen(msg));
+		send_data(client, msg, ft_strlen(msg), 501);
 		ft_strdel(&msg);
 	}
 	else if (!S_ISDIR(st_stat.st_mode))
 	{
 		ret = 3;
 		msg = ft_strjoin("cd: Not a directory: ", arg);
-		send_data(client, msg, ft_strlen(msg));
+		send_data(client, msg, ft_strlen(msg), 501);
 		ft_strdel(&msg);
 	}
+	close(fd);
 	ft_strdel(&absolute_path);
 	return (ret);
 }
@@ -169,16 +170,13 @@ static int		cd_manage(char **path, char **pwd, char **old)
 static int		cd_home(int client, char *home, char **pwd, char **old_pwd)
 {
 	if (chdir(home) == -1)
-	{
-		send_data(client, "cd: HOME not found.", ft_strlen("cd: HOME not found."));
-		return (501);
-	}
+		return (send_data(client, "cd: HOME not found.", ft_strlen("cd: HOME not found."), 501));
+
 	ft_strdel(old_pwd);
 	*old_pwd = ft_strdup(*pwd);
 	ft_strdel(pwd);
 	*pwd = ft_strdup(home);
-	send_data(client, NULL, 0);
-	return(200);
+	return (send_data(client, NULL, 0, 200));
 }
 
 int		command_cd(int client, char *cmd, char **argv)
@@ -194,7 +192,7 @@ int		command_cd(int client, char *cmd, char **argv)
 	if (ft_tablen(argv) > 2)
 	{
 		msg = ft_strjoin("cd: String not in pwd: ", argv[1]);
-		send_data(client, msg, ft_strlen(msg));
+		send_data(client, msg, ft_strlen(msg), 501);
 		ft_strdel(&msg);
 		return (501);
 	}
@@ -205,7 +203,6 @@ int		command_cd(int client, char *cmd, char **argv)
 	path = path_split(argv[1]);
 	cd_manage(path, &pwd, &old_pwd);
 
-	send_data(client, NULL, 0);
 	ft_tabdel(&path);
-	return (200);
+	return (send_data(client, NULL, 0, 200));
 }

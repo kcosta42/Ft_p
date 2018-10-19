@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/15 12:31:37 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/16 19:20:42 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/19 13:40:38 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ int			isvalid_path(char *path, char *arg)
 		ret = printf("cd: Permission denied: %s\n", arg);
 	else if (!S_ISDIR(st_stat.st_mode))
 		ret = printf("cd: Not a directory: %s\n", arg);
+
+	close(fd);
 	ft_strdel(&absolute_path);
 	return (ret);
 }

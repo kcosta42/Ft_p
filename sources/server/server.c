@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/18 20:53:03 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/19 13:35:13 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,13 @@ static int	create_server(int port)
 	return (sock);
 }
 
-int		send_data(int client, const void *data, size_t size)
+int		send_data(int client, const void *data, size_t size, int reply)
 {
 	int		ret;
 
-	ret = send(client, &size, sizeof(size), 0);
+	send(client, &reply, sizeof(int), 0);
+
+	ret = send(client, &size, sizeof(size_t), 0);
 	if (ret == -1)
 		printf("Failed to deliver data size.\n");
 
@@ -60,7 +62,7 @@ int		send_data(int client, const void *data, size_t size)
 	ret = send(client, data, size, 0);
 	if (ret == -1)
 		printf("Failed to deliver data.\n");
-	return (ret);
+	return (reply);
 }
 
 int		manage_client(int client)
@@ -74,7 +76,7 @@ int		manage_client(int client)
 		buffer[r] = 0;
 		printf("received %d bytes: [%s]\n", r, buffer);
 		ret = command_handler(client, buffer);
-		send(client, &ret, sizeof(int), 0);
+		// send(client, &ret, sizeof(int), 0);
 		return (ret);
 	}
 	return(221);

@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/18 22:52:13 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/19 00:37:01 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/19 16:45:50 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,25 +23,33 @@ char	*get_filename(char *path)
 	return (filename);
 }
 
-int		send_data(int socket, char *ptr, char *path)
+int		send_data(int socket, char *path, char *ptr, size_t size)
 {
 	char	*tmp;
-	char	*tmp2;
+	char	*cmd;
 	char	*filename;
-	char	*data;
 
 	filename = get_filename(path);
 
 	tmp = ft_strjoin("put ", filename);
-	tmp2 = ft_strjoin(" ", ptr);
-	data = ft_strjoin(tmp, tmp2);
-
-	send_command(socket, data);
-
+	cmd = ft_strjoin(tmp, "\n");
 	ft_strdel(&tmp);
-	ft_strdel(&tmp2);
+
+	write(socket, cmd, ft_strlen(cmd));
+
+	if (send(socket, &size, sizeof(size_t), 0) == -1)
+	{
+		ft_strdel(&cmd);
+		ft_strdel(&filename);
+		return (receive_data(socket));
+	}
+	if (size)
+		send(socket, ptr, size, 0);
+
+	receive_data(socket);
+
+	ft_strdel(&cmd);
 	ft_strdel(&filename);
-	ft_strdel(&data);
 	return (0);
 }
 
@@ -65,8 +73,9 @@ int		lcommand_put(int socket, char **argv)
 		return (printf("Usage: put <file>\n"));
 
 	ptr = mmap(0, st_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	close(fd);
 
-	send_data(socket, ptr, argv[1]);
+	send_data(socket, argv[1], ptr, st_stat.st_size);
 
 	munmap(ptr, st_stat.st_size);
 	return (200);

@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/18 16:51:34 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/18 21:36:36 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/19 16:48:09 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,12 @@ char	*last_cmd;
 
 int		create_file(int socket, char *data, size_t data_size)
 {
+	int		reply;
 	char	*filename;
 	size_t	size;
 	int		fd;
+
+	recv(socket, &reply, sizeof(int), 0);
 
 	size = 0;
 	recv(socket, &size, sizeof(size_t), 0);
@@ -35,37 +38,37 @@ int		create_file(int socket, char *data, size_t data_size)
 
 	fd = open(filename, O_CREAT | O_TRUNC | O_WRONLY, 0644);
 	write(fd, data, data_size);
+	close(fd);
 
 	ft_strdel(&filename);
 	return (0);
 }
 
-int		data_handler(int socket, char *data, size_t data_size)
+int		data_handler(int socket, char *data, size_t data_size, int reply)
 {
-	int		reply;
-	int		ret;
-
-	if (ft_strlen(last_cmd) == 3 && !ft_strcmp(last_cmd, "get"))
+	if (reply == 200 && ft_strlen(last_cmd) == 3 && !ft_strcmp(last_cmd, "get"))
 		create_file(socket, data, data_size);
 	else
 		write(1, data, data_size);
 
-	ret = recv(socket, &reply, sizeof(int), 0);
 	printf("\nReply: %d -- [received %zu bytes]\n", reply, data_size);
 	return (0);
 }
 
 int		receive_data(int socket)
 {
+	int		reply;
 	size_t	data_size;
 	char	*data;
 	int		ret;
+
+	recv(socket, &reply, sizeof(int), 0);
 
 	if (recv(socket, &data_size, sizeof(data_size), 0) == -1)
 		printf("Error while receiving data size.\n");
 
 	if (!data_size)
-		return (0);
+		return (data_handler(socket, NULL, 0, reply));
 
 	data = ft_strnew(data_size);
 
@@ -73,15 +76,17 @@ int		receive_data(int socket)
 	if (ret == -1)
 		printf("Error while receiving data.\n");
 
-	data_handler(socket, data, data_size);
+	data_handler(socket, data, data_size, reply);
+
 	ft_strdel(&data);
+	if (reply == 221)
+		exit(0);
 	return (ret);
 }
 
 int		send_command(int socket, char *buffer)
 {
 	write(socket, buffer, ft_strlen(buffer));
-	if (!receive_data(socket))
-		return (data_handler(socket, NULL, 0));
+	receive_data(socket);
 	return (0);
 }
