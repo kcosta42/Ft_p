@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/18 16:51:34 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/19 16:48:09 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/24 22:15:18 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,19 @@ int		create_file(int socket, char *data, size_t data_size)
 	return (0);
 }
 
+char	*reply_msg(int reply)
+{
+	if (reply == 200)
+		return (MSG_200);
+	if (reply == 221)
+		return (MSG_221);
+	if (reply == 500)
+		return (MSG_500);
+	if (reply == 501)
+		return (MSG_501);
+	return (MSG_DEFAULT);
+}
+
 int		data_handler(int socket, char *data, size_t data_size, int reply)
 {
 	if (reply == 200 && ft_strlen(last_cmd) == 3 && !ft_strcmp(last_cmd, "get"))
@@ -51,7 +64,7 @@ int		data_handler(int socket, char *data, size_t data_size, int reply)
 	else
 		write(1, data, data_size);
 
-	printf("\nReply: %d -- [received %zu bytes]\n", reply, data_size);
+	printf("\nReply: %d %s [received %zu bytes]\n", reply, reply_msg(reply), data_size);
 	return (0);
 }
 
@@ -86,7 +99,7 @@ int		receive_data(int socket)
 
 int		send_command(int socket, char *buffer)
 {
-	write(socket, buffer, ft_strlen(buffer));
+	send(socket, buffer, ft_strlen(buffer), 0);
 	receive_data(socket);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/18 22:46:43 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/19 16:39:56 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/24 21:58:45 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,11 @@ int		command_put(int client, char *cmd, char **argv)
 	size_t	data_size;
 
 	(void)cmd;
+	send(client, &client, sizeof(client), 0);
 
-	if (recv(client, &data_size, sizeof(data_size), 0) == -1)
+	if (recv(client, &data_size, sizeof(size_t), 0) == -1)
 		return (send_data(client, "Error receiving file.", ft_strlen("Error receiving file."), 501));
 
-	printf("%zu\n", data_size);
 	if (!data_size)
 		return (0);
 
@@ -32,7 +32,6 @@ int		command_put(int client, char *cmd, char **argv)
 	if (recv(client, data, data_size, 0) == -1)
 		return (send_data(client, "Error receiving file.", ft_strlen("Error receiving file."), 501));
 
-	printf("%s\n", (char*)data);
 	fd = open(argv[1], O_CREAT | O_TRUNC | O_WRONLY, 0644);
 	write(fd, data, data_size);
 	close(fd);

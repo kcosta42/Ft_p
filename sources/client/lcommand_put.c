@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/18 22:52:13 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/19 16:45:50 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/24 22:21:58 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,17 +25,16 @@ char	*get_filename(char *path)
 
 int		send_data(int socket, char *path, char *ptr, size_t size)
 {
-	char	*tmp;
 	char	*cmd;
 	char	*filename;
+	int		ready;
 
 	filename = get_filename(path);
 
-	tmp = ft_strjoin("put ", filename);
-	cmd = ft_strjoin(tmp, "\n");
-	ft_strdel(&tmp);
+	cmd = ft_strjoin("put ", filename);
 
-	write(socket, cmd, ft_strlen(cmd));
+	send(socket, cmd, ft_strlen(cmd), 0);
+	recv(socket, &ready, sizeof(int), 0);
 
 	if (send(socket, &size, sizeof(size_t), 0) == -1)
 	{

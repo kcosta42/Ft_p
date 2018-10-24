@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/19 13:35:13 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/24 22:17:41 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,12 +71,11 @@ int		manage_client(int client)
 	int		ret;
 	char	buffer[1024];
 
-	if ((r = read(client, buffer, 1023)) > 0)
+	if ((r = recv(client, buffer, 1023, 0)) > 0)
 	{
 		buffer[r] = 0;
-		printf("received %d bytes: [%s]\n", r, buffer);
+		printf("[received %d bytes] -- %s\n", r, buffer);
 		ret = command_handler(client, buffer);
-		// send(client, &ret, sizeof(int), 0);
 		return (ret);
 	}
 	return(221);

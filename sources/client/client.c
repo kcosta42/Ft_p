@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/18 22:45:05 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/24 22:23:48 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ int		main(int ac, char **av, char **env)
 	port = ft_atoi(av[2]);
 	socket = create_client(av[1], port);
 
+	write(1, "client> ", ft_strlen("client> "));
 	while ((r = read(STDIN_FILENO, buffer, 1024)) > 0)
 	{
 		// Send Command
@@ -65,6 +66,7 @@ int		main(int ac, char **av, char **env)
 			send_command(socket, buffer);
 
 		ft_memset(buffer, 0, 1024);
+		write(1, "client> ", ft_strlen("client> "));
 	}
 	close(socket);
 	return (0);
