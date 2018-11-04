@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/15 12:31:37 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/19 13:40:38 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/26 16:46:36 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ static int		lcd_home(char *home, char **pwd, char **old_pwd)
 	ft_strdel(pwd);
 	*pwd = ft_strdup(home);
 
-	return (0);
+	return (1);
 }
 
 char		**path_split(char *absolute_path)
@@ -81,13 +81,17 @@ static int		lcd_back(char **pwd)
 	char		*path;
 	size_t		size;
 
+	if (!*pwd || !pwd)
+		return (1);
 	size = (ft_strrchr(*pwd, '/') - *pwd) ? ft_strrchr(*pwd, '/') - *pwd : 1;
+	if (size > 1024)
+		return (1);
 	path = ft_strnew(size);
 	path = ft_strncpy(path, *pwd, size);
 	chdir(path);
 	ft_strdel(pwd);
 	*pwd = path;
-	return (0);
+	return (1);
 }
 
 char		*get_path(char **path)
@@ -163,9 +167,9 @@ int		lcommand_cd(char **env, char *cmd, char **argv)
 	char		**path;
 
 	(void)cmd;
-	pwd 	= (!pwd) 	 ? ft_strdup(*ft_tabstr(env, "PWD=") + 4) : pwd;
+	pwd = (!pwd) ? ft_strdup(*ft_tabstr(env, "PWD=") + 4) : pwd;
 	old_pwd = (!old_pwd) ? ft_strdup(*ft_tabstr(env, "HOME=") + 5) : old_pwd;
-	home 	= (!home) 	 ? ft_strdup(*ft_tabstr(env, "HOME=") + 5) : old_pwd;
+	home = (!home) ? ft_strdup(*ft_tabstr(env, "HOME=") + 5) : home;
 
 	if (ft_tablen(argv) > 2)
 		return (printf("cd: String not in pwd.\n"));

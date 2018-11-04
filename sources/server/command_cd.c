@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/12 17:29:26 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/19 14:56:26 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/26 14:06:46 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,6 @@ static int		cd_manage(char **path, char **pwd, char **old)
 	index = 0;
 	if (!ft_strcmp(path[index], "-"))
 	{
-		ft_printf("%s\n", *old);
 		chdir(*old);
 		ft_strswp(pwd, old);
 		return (200);

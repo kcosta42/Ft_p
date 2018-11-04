@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/24 22:23:48 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/25 19:49:57 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,9 @@ int		main(int ac, char **av, char **env)
 		usage(av[0]);
 
 	port = ft_atoi(av[2]);
+
+	if (ft_strlen(av[1]) == 9 && !ft_strcmp(av[1], "localhost"))
+		av[1] = "127.0.0.1";
 	socket = create_client(av[1], port);
 
 	write(1, "client> ", ft_strlen("client> "));

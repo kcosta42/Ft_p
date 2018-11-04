@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/15 11:28:57 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/19 16:47:22 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/26 12:04:22 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,13 @@ int		lcommand_handler(int socket, char *cmd, char **env)
 {
 	int		len;
 	int		ret;
+	char	*trim;
 	char	**argv;
 	int		i;
 
-	argv = ft_strsplit(ft_strtrim(cmd), ' ');
+	trim = ft_strtrim(cmd);
+	argv = ft_strsplit(trim, ' ');
+	ft_strdel(&trim);
 
 	last_cmd ? ft_strdel(&last_cmd) : 0;
 	last_cmd = ft_strdup(argv[0]);
@@ -65,8 +68,8 @@ int		lcommand_handler(int socket, char *cmd, char **env)
 		i++;
 	}
 	if (len == 3 && !ft_strcmp("put", argv[0]))
-		return (lcommand_put(socket, argv));
-	if (!cmd_hash[i].cmd_len)
+		ret = lcommand_put(socket, argv);
+	else if (!cmd_hash[i].cmd_len)
 		ret = 0;
 	ft_tabdel(&argv);
 	return (ret);

@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/11 19:54:47 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/19 16:48:29 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/10/30 15:06:05 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,11 +194,16 @@ int		command_handler(int client, char *cmd)
 	int		len;
 	int		ret;
 	char	**argv;
+	char	*trim;
 	int		i;
 	char	*msg;
 
-	argv = ft_strsplit(ft_strtrim(cmd), ' ');
+	trim = ft_strtrim(cmd);
+	argv = ft_strsplit(trim, ' ');
+	ft_strdel(&trim);
+
 	len = ft_strlen(argv[0]);
+
 	i = 0;
 	while (cmd_hash[i].cmd_len)
 	{
