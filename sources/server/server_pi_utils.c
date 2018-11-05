@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/05 15:32:43 by kcosta            #+#    #+#             */
-/*   Updated: 2018/11/05 15:35:11 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/05 16:39:09 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,6 @@ int		replace_path(char ***argv)
 		if ((*argv)[i][0] == '/')
 		{
 			tmp = ft_strjoin(g_root, (*argv)[i] + 1);
-
 			ft_strdel(&((*argv)[i]));
 			(*argv)[i] = ft_strdup(tmp);
 			ft_strdel(&tmp);

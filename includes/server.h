@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:47:25 by kcosta            #+#    #+#             */
-/*   Updated: 2018/11/05 15:57:49 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/05 16:50:15 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ int				replace_path(char ***argv);
 int				isvalid_path(int client, char *path, char *arg);
 char			**path_split(char *absolute_path);
 char			*get_path(char **path);
-
 
 extern char		*g_root;
 extern char		*g_home;

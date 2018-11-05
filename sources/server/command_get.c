@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/18 16:23:58 by kcosta            #+#    #+#             */
-/*   Updated: 2018/11/05 16:27:14 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/05 16:38:47 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ static int	send_filename(int client, char *path)
 	return (200);
 }
 
-int		command_get(int client, char *cmd, char **argv)
+int			command_get(int client, char *cmd, char **argv)
 {
 	int			fd;
 	struct stat	st_stat;
