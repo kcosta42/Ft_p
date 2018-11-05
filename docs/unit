@@ -1,0 +1,37 @@
+ls
+ls -a
+ls -Ra
+ls -lRa
+pwd
+cd
+pwd
+cd -
+pwd
+cd ..
+pwd
+cd home
+pwd
+cd tewtwetw
+pwd
+lpwd
+lcd
+lpwd
+lcd -
+lpwd
+lcd ..
+lpwd
+lcd Ft_p
+lpwd
+lls
+lls -a
+lls -Ra
+lls -lRa
+del server
+del client
+del toto
+put server
+put client
+put wqewqeq
+get server
+get client
+quit

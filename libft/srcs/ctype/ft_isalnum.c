@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/03 15:54:21 by kcosta            #+#    #+#             */
-/*   Updated: 2017/01/11 10:29:52 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/05 11:36:25 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,5 @@
 
 int		ft_isalnum(int c)
 {
-	int i;
-
-	i = 0;
 	return (ft_isalpha(c) | ft_isdigit(c));
 }

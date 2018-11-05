@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/25 19:49:57 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/05 13:01:34 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,7 @@ int		create_client(char *addr, int port)
 	proto = getprotobyname("tcp");
 	if (!proto)
 		exit(-1);
-
 	sock = socket(PF_INET, SOCK_STREAM, proto->p_proto);
-
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(port);
 	sin.sin_addr.s_addr = inet_addr(addr);
@@ -50,24 +48,18 @@ int		main(int ac, char **av, char **env)
 
 	if (ac != 3)
 		usage(av[0]);
-
 	port = ft_atoi(av[2]);
-
 	if (ft_strlen(av[1]) == 9 && !ft_strcmp(av[1], "localhost"))
 		av[1] = "127.0.0.1";
 	socket = create_client(av[1], port);
-
 	write(1, "client> ", ft_strlen("client> "));
 	while ((r = read(STDIN_FILENO, buffer, 1024)) > 0)
 	{
-		// Send Command
 		buffer[r - 1] = 0;
-		if(!*buffer)
+		if (!*buffer)
 			continue ;
-
 		if (!lcommand_handler(socket, buffer, env))
 			send_command(socket, buffer);
-
 		ft_memset(buffer, 0, 1024);
 		write(1, "client> ", ft_strlen("client> "));
 	}
