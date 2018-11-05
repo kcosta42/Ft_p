@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/12 17:29:26 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/26 14:06:46 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/05 14:50:25 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,77 +14,6 @@
 
 char	*g_root;
 char	*g_home;
-
-int			isvalid_path(int client, char *path, char *arg)
-{
-	struct stat	st_stat;
-	char		*tmp;
-	char		*absolute_path;
-	int			ret;
-	char		*msg;
-	int			fd;
-
-	ret = 0;
-	if (!ft_strcmp(arg, "-"))
-		return (ret);
-	if (*arg != '/')
-	{
-		tmp = ft_strjoin(path, "/");
-		absolute_path = ft_strjoin(tmp, arg);
-		ft_strdel(&tmp);
-	}
-	else
-		absolute_path = ft_strdup(arg);
-	fd = open(absolute_path, O_RDONLY);
-	if (fd == -1 && errno == EACCES)
-	{
-		ret = 1;
-		msg = ft_strjoin("cd: Permission denied: ", arg);
-		send_data(client, msg, ft_strlen(msg), 501);
-		ft_strdel(&msg);
-	}
-	else if (fd == -1)
-	{
-		ret = 2;
-		msg = ft_strjoin("cd: No such file or directory: ", arg);
-		send_data(client, msg, ft_strlen(msg), 501);
-		ft_strdel(&msg);
-	}
-	else if (fstat(fd, &st_stat) == -1)
-	{
-		ret = 1;
-		msg = ft_strjoin("cd: Permission denied: ", arg);
-		send_data(client, msg, ft_strlen(msg), 501);
-		ft_strdel(&msg);
-	}
-	else if (!S_ISDIR(st_stat.st_mode))
-	{
-		ret = 3;
-		msg = ft_strjoin("cd: Not a directory: ", arg);
-		send_data(client, msg, ft_strlen(msg), 501);
-		ft_strdel(&msg);
-	}
-	close(fd);
-	ft_strdel(&absolute_path);
-	return (ret);
-}
-
-char		**path_split(char *absolute_path)
-{
-	char	**path;
-	char	*tmp;
-
-	if (*absolute_path == '/')
-	{
-		tmp = ft_strjoin(" ", absolute_path);
-		path = ft_strsplit(tmp, '/');
-		path[0][0] = '/';
-		ft_strdel(&tmp);
-	}
-	else
-		path = ft_strsplit(absolute_path, '/');
-	return (path);
-}
 
 static int		cd_back(char **pwd)
 {
@@ -100,20 +29,6 @@ static int		cd_back(char **pwd)
 	ft_strdel(pwd);
 	*pwd = path;
 	return (0);
-}
-
-char		*get_path(char **path)
-{
-	char	*absolute_path;
-	size_t	index;
-
-	index = ft_strlen(*path) - 1;
-	while ((*path)[index] == '/')
-		index--;
-	absolute_path = ft_strnew(index + 1);
-	absolute_path = ft_strncpy(absolute_path, *path, index + 1);
-	ft_strdel(path);
-	return (absolute_path);
 }
 
 static int		cd_forward(char *arg, char **pwd)
@@ -168,9 +83,11 @@ static int		cd_manage(char **path, char **pwd, char **old)
 
 static int		cd_home(int client, char *home, char **pwd, char **old_pwd)
 {
-	if (chdir(home) == -1)
-		return (send_data(client, "cd: HOME not found.", ft_strlen("cd: HOME not found."), 501));
+	size_t		len;
 
+	len = ft_strlen("cd: HOME not found.");
+	if (chdir(home) == -1)
+		return (send_data(client, "cd: HOME not found.", len, 501));
 	ft_strdel(old_pwd);
 	*old_pwd = ft_strdup(*pwd);
 	ft_strdel(pwd);
@@ -178,7 +95,7 @@ static int		cd_home(int client, char *home, char **pwd, char **old_pwd)
 	return (send_data(client, NULL, 0, 200));
 }
 
-int		command_cd(int client, char *cmd, char **argv)
+int				command_cd(int client, char *cmd, char **argv)
 {
 	static char	*pwd = NULL;
 	static char	*old_pwd = NULL;
@@ -186,7 +103,7 @@ int		command_cd(int client, char *cmd, char **argv)
 	char		*msg;
 
 	(void)cmd;
-	pwd 	= (!pwd) 	 ? ft_strdup(g_home) : pwd;
+	pwd = (!pwd) ? ft_strdup(g_home) : pwd;
 	old_pwd = (!old_pwd) ? ft_strdup(g_home) : old_pwd;
 	if (ft_tablen(argv) > 2)
 	{
@@ -201,7 +118,6 @@ int		command_cd(int client, char *cmd, char **argv)
 		return (501);
 	path = path_split(argv[1]);
 	cd_manage(path, &pwd, &old_pwd);
-
 	ft_tabdel(&path);
 	return (send_data(client, NULL, 0, 200));
 }

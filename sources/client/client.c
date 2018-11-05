@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/11/05 13:01:34 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/05 16:07:31 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,7 @@ int		main(int ac, char **av, char **env)
 	while ((r = read(STDIN_FILENO, buffer, 1024)) > 0)
 	{
 		buffer[r - 1] = 0;
-		if (!*buffer)
-			continue ;
-		if (!lcommand_handler(socket, buffer, env))
+		if (*buffer && !lcommand_handler(socket, buffer, env))
 			send_command(socket, buffer);
 		ft_memset(buffer, 0, 1024);
 		write(1, "client> ", ft_strlen("client> "));

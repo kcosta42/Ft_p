@@ -5,6 +5,7 @@
 		"*.tpp": "cpp",
 		"client.h": "c",
 		"ft_string.h": "c",
-		"inet.h": "c"
+		"inet.h": "c",
+		"server.h": "c"
 	}
 }

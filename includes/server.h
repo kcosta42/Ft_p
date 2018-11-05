@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:47:25 by kcosta            #+#    #+#             */
-/*   Updated: 2018/11/05 12:56:14 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/05 15:57:49 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,21 @@ int				init_server(char **envp);
 
 int				send_data(int client, const void *data, size_t size, int reply);
 
+int				exec_command(int client, char *cmd, char **argv);
 int				command_handler(int client, char *cmd);
 int				command_cd(int client, char *cmd, char **argv);
 int				command_get(int client, char *cmd, char **argv);
 int				command_put(int client, char *cmd, char **argv);
+int				command_quit(int client, char *cmd, char **argv);
+int				command_pwd(int client, char *cmd, char **argv);
+int				command_del(int client, char *cmd, char **argv);
+
+int				check_path(char *path);
+int				replace_path(char ***argv);
+int				isvalid_path(int client, char *path, char *arg);
+char			**path_split(char *absolute_path);
+char			*get_path(char **path);
+
 
 extern char		*g_root;
 extern char		*g_home;

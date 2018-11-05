@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/09 11:46:44 by kcosta            #+#    #+#             */
-/*   Updated: 2018/10/26 11:03:39 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/05 15:55:39 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,7 @@ static int	create_server(int port)
 	proto = getprotobyname("tcp");
 	if (!proto)
 		exit(-1);
-
 	sock = socket(PF_INET, SOCK_STREAM, proto->p_proto);
-
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(port);
 	sin.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -46,26 +44,7 @@ static int	create_server(int port)
 	return (sock);
 }
 
-int		send_data(int client, const void *data, size_t size, int reply)
-{
-	int		ret;
-
-	send(client, &reply, sizeof(int), 0);
-
-	ret = send(client, &size, sizeof(size_t), 0);
-	if (ret == -1)
-		printf("Failed to deliver data size.\n");
-
-	if (!size)
-		return (0);
-
-	ret = send(client, data, size, 0);
-	if (ret == -1)
-		printf("Failed to deliver data.\n");
-	return (reply);
-}
-
-int		manage_client(int client)
+int			manage_client(int client)
 {
 	int		r;
 	int		ret;
@@ -78,10 +57,10 @@ int		manage_client(int client)
 		ret = command_handler(client, buffer);
 		return (ret);
 	}
-	return(221);
+	return (221);
 }
 
-static int accept_client(int sock)
+static int	accept_client(int sock)
 {
 	int					cs;
 	struct sockaddr_in	csin;
@@ -102,14 +81,13 @@ static int accept_client(int sock)
 	return (0);
 }
 
-int		main(int ac, char **av, char **e)
+int			main(int ac, char **av, char **e)
 {
 	int		port;
 	int		sock;
 
 	if (ac != 2)
 		usage(av[0]);
-
 	port = ft_atoi(av[1]);
 	sock = create_server(port);
 	init_server(e);

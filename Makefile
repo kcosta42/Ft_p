@@ -6,7 +6,7 @@
 #    By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/08/16 19:08:49 by kcosta            #+#    #+#              #
-#    Updated: 2018/11/05 13:48:14 by kcosta           ###   ########.fr        #
+#    Updated: 2018/11/05 15:57:23 by kcosta           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,8 +23,13 @@ FLAGS	:= -Wall -Wextra -Werror -g #-fsanitize=address
 # =========== Files ============ #
 SERVER_SRCS_FILES	:=	server.c			\
 						server_pi.c			\
+						server_pi_utils.c	\
 						server_init.c		\
+						server_utils.c		\
+						command_pwd.c		\
 						command_cd.c		\
+						command_cd_utils.c	\
+						command_del.c		\
 						command_get.c		\
 						command_put.c
 CLIENT_SRCS_FILES	:=	client.c			\
