@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/18 22:46:43 by kcosta            #+#    #+#             */
-/*   Updated: 2018/11/06 16:08:22 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/06 16:38:32 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,6 @@ int		command_put(int client, char *cmd, char **argv)
 	send(client, &client, sizeof(client), 0);
 	if (recv(client, &data_size, sizeof(size_t), 0) == -1)
 		return (send_data(client, "Error receiving file.", len, 501));
-	if (!data_size)
-		return (0);
 	putfile(client, data_size, argv[1]);
 	return (send_data(client, NULL, 0, 200));
 }
