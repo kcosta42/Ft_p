@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/18 16:23:58 by kcosta            #+#    #+#             */
-/*   Updated: 2018/11/05 16:38:47 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/06 16:04:46 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int			command_get(int client, char *cmd, char **argv)
 {
 	int			fd;
 	struct stat	st_stat;
-	void		*ptr;
+	char		*ptr;
 
 	(void)cmd;
 	if (ft_tablen(argv) != 2)
@@ -47,10 +47,11 @@ int			command_get(int client, char *cmd, char **argv)
 		return (send_err_msg(client, "Permission denied."));
 	else if (S_ISDIR(st_stat.st_mode))
 		return (send_err_msg(client, "Usage: get <file>"));
-	ptr = mmap(0, st_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	ptr = ft_strnew(st_stat.st_size);
+	read(fd, ptr, st_stat.st_size);
 	close(fd);
 	send_data(client, ptr, st_stat.st_size, 200);
 	send_filename(client, argv[1]);
-	munmap(ptr, st_stat.st_size);
+	ft_strdel(&ptr);
 	return (200);
 }

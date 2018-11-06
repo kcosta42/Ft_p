@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/18 16:51:34 by kcosta            #+#    #+#             */
-/*   Updated: 2018/11/05 13:02:16 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/06 16:06:58 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,8 @@ int		receive_data(int socket)
 	int		reply;
 	size_t	data_size;
 	char	*data;
-	int		ret;
+	size_t	offset;
+	size_t	size;
 
 	recv(socket, &reply, sizeof(int), 0);
 	if (recv(socket, &data_size, sizeof(data_size), 0) == -1)
@@ -77,14 +78,19 @@ int		receive_data(int socket)
 	if (!data_size)
 		return (data_handler(socket, NULL, 0, reply));
 	data = ft_strnew(data_size);
-	ret = recv(socket, data, data_size, 0);
-	if (ret == -1)
-		printf("Error while receiving data.\n");
+	offset = 0;
+	while (data_size - offset)
+	{
+		size = data_size - offset > 4096 ? 4096 : data_size - offset;
+		if (recv(socket, data + offset, size, 0) == -1)
+			printf("Error while receiving data.\n");
+		offset = (offset + 4096 < data_size) ? offset + 4096 : data_size;
+	}
 	data_handler(socket, data, data_size, reply);
 	ft_strdel(&data);
 	if (reply == 221)
 		exit(0);
-	return (ret);
+	return (0);
 }
 
 int		send_command(int socket, char *buffer)

@@ -6,7 +6,7 @@
 /*   By: kcosta <kcosta@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/10/18 22:52:13 by kcosta            #+#    #+#             */
-/*   Updated: 2018/11/05 14:42:55 by kcosta           ###   ########.fr       */
+/*   Updated: 2018/11/06 15:49:08 by kcosta           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ int		lcommand_put(int socket, char **argv)
 {
 	int			fd;
 	struct stat	st_stat;
-	void		*ptr;
+	char		*ptr;
 
 	if (ft_tablen(argv) != 2)
 		return (printf("Usage: put <file>\n"));
@@ -63,9 +63,10 @@ int		lcommand_put(int socket, char **argv)
 		return (printf("Permission denied.\n"));
 	else if (S_ISDIR(st_stat.st_mode))
 		return (printf("Usage: put <file>\n"));
-	ptr = mmap(0, st_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	ptr = ft_strnew(st_stat.st_size);
+	read(fd, ptr, st_stat.st_size);
 	close(fd);
 	send_data(socket, argv[1], ptr, st_stat.st_size);
-	munmap(ptr, st_stat.st_size);
+	ft_strdel(&ptr);
 	return (200);
 }
